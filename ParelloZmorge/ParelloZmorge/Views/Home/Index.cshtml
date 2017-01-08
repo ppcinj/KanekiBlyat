@@ -1,0 +1,261 @@
+﻿@{
+	ViewBag.Title = "Parello Zmorge";
+}
+
+<link href="~/styles/copiedStyle.css" rel="stylesheet" />
+<style>
+	#listView {
+		border-width: 0;
+	}
+
+	.itemRow {
+		/**background-color: #c9c9c9;**/
+		background-color: white;
+		margin-bottom: 5px;
+		margin-left: 5px;
+		margin-right: 5px;
+	}
+
+		.itemRow:nth-child(even) {
+			/*background-color: #e5e5e5;**/
+			background-color: white;
+		}
+
+		.itemRow:last-child {
+			margin-bottom: 20px;
+		}
+
+	#shoppingCart {
+		background-color: #c9c9c9;
+		border-top: 20px solid #c9c9c9
+	}
+
+	h3 {
+		padding: 8px 2px;
+	}
+</style>
+
+<script>
+	function addToCart(productId, price) {
+		var amount = $("#uiInputForAmountOfProduct").val();
+
+		if ($("div [data-productId='" + productId + "']").length > 0) {
+			var itemRow = $("div [data-productId='" + productId + "']");
+			amount = (parseInt(itemRow.attr("data-amount")) + parseInt(amount));
+			itemRow.remove();
+		}
+		
+
+		var cartNode = $("#cart");
+		cartNode.append("<div data-amount='" + amount + "' data-productId='" + productId + "' class='itemRow row product'>" +
+			"<div class='col-md-10'>" + $("#itemName").html() + "</div>" +
+			"<div class='col-md-2'><img class='removeItem' width='16' src='@Url.Content("~/images/delete.jpg")' /></div>" +
+			"<div class='col-md-5 amountColumn'>Anzahl: " + amount + "</div>" +
+			"<div data-price='" + (amount*price) + "' class='col-md-7 text-right priceItem'>" + kendo.toString(parseFloat(amount*price), "C2") + "</div>" +
+			"</div>");
+
+		$(".removeItem")
+			.click(function() {
+				$(this).closest(".itemRow").remove();
+				setTotalPrice();
+				setButtonEnabledState();
+			});
+
+		setTotalPrice();
+		setButtonEnabledState();
+		$(".k-window").remove();
+	}
+
+	function setTotalPrice() {
+		var totalPrice = 0;
+
+		$.each($(".priceItem"),
+			function() {
+				totalPrice += parseFloat($(this).attr("data-price"));
+			});
+
+		$("#totalPrice").html(kendo.toString(parseFloat(totalPrice), "C2"));
+	}
+
+	function setButtonEnabledState() {
+		if ($(".product").length > 0) {
+			$("#submitOrder").show();
+		} else {
+			$("#submitOrder").hide();
+		}		
+	}
+</script>
+
+<script id="album-details-template" type="text/x-kendo-template">
+	<div class="album-details">
+		<div class="image-container">
+			<img src="@Url.Content("~/images/")${data.Id}.jpg" />
+		</div>
+		<div class="album-info-container">
+			<div id="itemName" class="artist">#: data.Name #</div>
+			<div><span id="priceTag" class="price">#= kendo.toString(data.Price, "C2")#</span></div>
+			<div><input id="uiInputForAmountOfProduct" style="border-width:1px;" class="k-widget k-numerictextbox" type="number" value="1" min="1" max="100" /><span class="price-currency">Stück</span></div>
+			<a onclick="addToCart('#:data.Id#', '#:data.Price#')" style="margin-top: 100px; margin-left: 80px;" class="k-button">Bestellen</a>
+		</div>
+	</div>
+</script>
+
+<script>
+	var viewModel = kendo.observable({
+		// Handler for when an album is clicked.
+		viewAlbumDetails: function (e) {
+			viewAlbumDetails(e.data.productId);
+		}
+	});
+
+	viewAlbumDetails = function (productId) {
+		$.ajax({
+			url: "@Url.Action("GetProduct", "Product")" + "?productId=" + productId,
+			type: "GET",
+			dataType: "json",
+			success: function (data) {
+				_openWindow("#album-details-template", _createAlbumDetailsViewModel(data));
+			}
+		});
+	}
+
+	_createAlbumDetailsViewModel = function (data) {
+		return kendo.observable({
+			quantity: 1,
+			data: data,
+			total: function () {
+				return this.get("data.Price") * this.get("quantity");
+			},
+			updateQty: function (e) {
+				this.set("quantity", e.sender.value());
+			},
+			addToCart: function (e) {
+				cart.addToCart(this.data, this.quantity);
+				var window = $(e.target).parents(".k-window-content").data("kendoWindow");
+				if (window) {
+					window.close();
+				}
+			}
+		});
+	}
+
+	_openWindow = function (template, viewModel) {
+		// Create a placeholder element.
+		var window = $(document.createElement('div'));
+
+		// Apply template to the placeholder element, and bind the viewmodel.
+		var templateHtml = $(template).html();
+		window.html(kendo.template(templateHtml)(viewModel));
+		kendo.bind(window, viewModel);
+
+		// Add window placeholder to the body.
+		$('body').append(window);
+
+		// Turn placeholder into a Window widget.
+		window.kendoWindow({
+			width: "400px",
+			title: viewModel.data.Name,
+			resizable: false,
+			close: function () {
+				// When the window is closed, remove the element from the document.
+				window.parents(".k-window").remove();
+			}
+		});
+
+		// Center and show the Window.
+		window.data("kendoWindow").center();
+		window.data("kendoWindow").open();
+	}
+</script>
+
+@model IEnumerable<ParelloZmorge.Models.ProductModel>
+<script id="template" type="text/x-kendo-tmpl">
+	<div class="album" onclick="viewAlbumDetails(#:Id#)">
+		<img src="@Url.Content("~/images/")#:Id#.jpg" alt="#: Name #" />
+		<span class="title">#:Name#</span>
+		<span>#:Description#</span>
+		<span class="price">
+			#= kendo.toString(Price, "C2")#
+		</span>
+	</div>
+
+</script>
+<div class="row">
+	<div class="col-md-8">
+		<h2>Produkte</h2>
+		@(Html.Kendo().ListView(Model)
+			  .Name("listView")
+			  .TagName("div")
+			  .ClientTemplateId("template")
+			  .DataSource(dataSource => dataSource
+				  .PageSize(9)
+				  .ServerOperation(false)
+				  .Read(r => r.Action("GetProducts", "Product"))
+			  ).Pageable()
+		)
+	</div>
+	<div id="shoppingCart" class="col-md-4">
+		<div class="itemRow">
+			<h3>Warenkorb</h3>
+		</div>
+		<div class="row">
+			<div class="col-md-12" id="cart">
+
+			</div>
+		</div>
+		<div class="row itemRow">
+			<div class="col-md-5">
+				<h4>Total</h4>
+			</div>
+			<div class="col-md-7 text-right">
+				<h4 id="totalPrice">0</h4>
+			</div>
+		</div>
+		<div class="row" style="padding: 5px;">
+			<div class="col-md-12 text-right">
+				<button id="submitOrder" type="button" class="btn btn-default">Bestellen</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script>
+	function clearShoppingCart() {
+		$(".product").remove();
+		setTotalPrice();
+		setButtonEnabledState();
+	}
+
+	$(function() {
+		$("#submitOrder")
+			.click(
+				function() {
+					var orderedProducts = [];
+					$.each($(".product"),
+						function() {
+							var id = $(this).attr("data-productId");
+							var amount = $(this).attr("data-amount");
+							var product = {
+								ProductId: id,
+								Amount: amount
+							}
+							orderedProducts.push((product));
+						});
+
+					$.ajax({
+						url: "@Url.Action("Create", "Order")",
+						type: "Post",
+						dataType: "json",
+						data: {orderedProducts: orderedProducts},
+						success: function (data) {
+							clearShoppingCart();
+							toastr.success("Bestellung aufgegeben, die ID lautet: " + data);
+						}, 
+						error: function(ex) {
+						    toastr.error(ex);
+						}
+					});
+				});
+	});
+	setButtonEnabledState();
+</script>

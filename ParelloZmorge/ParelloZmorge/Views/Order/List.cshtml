@@ -1,0 +1,152 @@
+﻿@{
+	ViewBag.Title = "Parello Zmorge";
+}
+@using ParelloZmorge.Enums
+@model ParelloZmorge.Models.OrderListViewModel
+	
+<style>
+	.panel-heading {
+		border: 1px solid black;
+		border-radius: 5px;
+	}
+
+	.panel-heading:hover {
+		background-color: grey;
+		cursor: pointer;
+	}
+
+	.label {
+		color: black;
+	}
+
+    #showClosed {
+        margin-top: 20px;
+    }
+</style>
+
+<div class="row">
+    <div class="col-md-6">
+        <h1>Offene Bestellungen</h1>
+    </div>
+    <div class="col-md-6 text-right">
+        @Html.ActionLink("Erledigte und stornierte anzeigen", "ListOld", "Order", new {@class = "btn btn-default", id="showClosed"})
+    </div>
+</div>
+
+@foreach (var order in Model.Orders)
+{
+	<div class="panel">
+		<div class="panel-heading">
+			<div class="row">
+				<div class="col-md-1">
+					<img class="expander" height="32" src="@Url.Content("~/images/expand.jpg")"/>
+				</div>
+				<div class="col-md-5">
+					@($"{order.User.Prename} {order.User.Surname}")
+				</div>
+				<div class="col-md-6 text-right">
+					@($"{order.OrderedProducts.Sum(o => o.Total):C2}")
+				</div>
+			</div>
+		</div>
+		<div style="display: none;" class="panel-body">
+			<div class="row">
+				<div class="col-md-6"><h4>ID</h4></div>
+				<div class="col-md-6 idDisplay"><h4>@order.Id.ToString()</h4></div>
+			</div>
+			<div class="row">
+				<div class="col-md-6"><h4>Arbeitsplatz</h4></div>
+				<div class="col-md-6"><h4>@order.User.WorkPlaceHint</h4></div>
+			</div>
+			<hr/>
+			<div class="row" style="border-bottom: 1px solid black;">
+				<div class="col-md-6">
+					<span style="font-weight: bold;">Name</span>
+				</div>
+				<div class="col-md-1">
+					Anzahl
+				</div>
+				<div class="col-md-2">
+					Preis
+				</div>
+				<div class="col-md-3 text-right">
+					<span style="font-weight: bold;">Total</span>
+				</div>
+			</div>
+			@foreach (var product in order.OrderedProducts)
+			{
+				<div class="row">
+					<div class="col-md-6">
+						<span style="font-weight: bold;">@product.Name</span>
+					</div>
+					<div class="col-md-1">
+						@product.Amount
+					</div>
+					<div class="col-md-2">
+						@($"{product.Price:C2}")
+					</div>
+					<div class="col-md-3 text-right">
+						<span style="font-weight: bold;">@($"{product.Total:C2}")</span>
+					</div>
+				</div>
+			}
+		    <hr/>
+		    <div class="row">
+                <div class="col-md-6">
+                    <button class="btn btn-danger markAsStorno">Stornieren</button>
+                </div>
+		        <div class="col-md-6 text-right">
+		            <button class="btn btn-primary markAsDone">Als erledigt markieren</button>
+		        </div>
+		    </div>
+		</div>
+	</div>
+}
+
+<script>
+	$(function() {
+		$(".panel-heading")
+			.click(
+				function () {
+					if ($(this).next().is(":hidden")) {
+						$(this).next().fadeIn();
+						$(this).find(".expander").attr("src", "@Url.Content("~/images/collapse.jpg")");
+					} else {
+						$(this).next().fadeOut();
+						$(this).find(".expander").attr("src", "@Url.Content("~/images/expand.jpg")");
+					}
+				});
+
+	    $(".markAsDone, .markAsStorno").click(function () {
+	        var isDone = $(this).hasClass("markAsDone"); // else isStorno
+
+	        var action = isDone ? @Html.Raw((int)OrderState.Done) : @Html.Raw((int)OrderState.Storno);
+
+	        var clickedOrder = $(this).closest(".panel");
+	        var idOfOrder = clickedOrder.find(".idDisplay").text();
+	        $.get('@Url.Action("MarkOrderAs", "Order")', {
+                orderId: idOfOrder,
+                setValue: action
+            })
+	        .done(function (data) {
+	            if (data === "OK") {
+                    if (isDone)
+                        toastr.success("Auftrag wurde als erledigt markiert.");
+                    else
+                        toastr.success("Auftrag wurde storniert.");
+
+	                clickedOrder.fadeOut({
+	                    complete: function() {
+	                        clickedOrder.remove();
+	                    }
+	                });
+	            } else {
+	                toastr.error("Fehler: " + data);
+	            }
+	        })
+	        .fail(function() {
+	            toastr.error("Fehler beim kontaktieren der Schnittstelle.");
+	        });
+	    });
+	});
+</script>

@@ -1,0 +1,5 @@
+﻿@Html.Kendo().Upload().Name("files").Async(a =>
+{
+	a.AutoUpload(true)
+	.Save("FileUpload", "File");
+})

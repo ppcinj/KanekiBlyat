@@ -1,0 +1,42 @@
+﻿@{
+	ViewBag.Title = "Produktverwaltung";
+}
+
+<style>
+	.imageForGrid {
+		height: 100px;
+	}
+</style>
+
+@using ParelloZmorge.Models
+<h2>@ViewBag.Title.</h2>
+<h3>@ViewBag.Message</h3>
+@(Html.Kendo().Grid<ProductModel>().Name("products").Columns(c =>
+{
+	c.Bound(p => p.ImageUploadModel).ClientTemplate("<img class='imageForGrid' src='" + Url.Content("~/images/") + "#: Id #.jpg'/>").Filterable(false).Title(string.Empty);
+	c.Bound(p => p.Name).Title("Artikel");
+	c.Bound(p => p.Description).Title("Beschreibung");
+	c.Bound(p => p.Weight).Title("Gewicht");
+	c.Bound(p => p.Price).Title("Preis");
+	c.Command(command => { command.Edit(); command.Destroy(); });
+})
+	.DataSource(d => d.Ajax()
+		.Read(r => r.Action("GetProducts", "Product"))
+		.Update(u => u.Action("Update", "Product"))
+		.Destroy(x => x.Action("Delete", "Product"))
+		.Create(c => c.Action("Create", "Product"))
+		.Model(m =>
+		{
+			m.Id(p => p.Id);
+			m.Field(p => p.Id);
+		})
+	.ServerOperation(false))
+	.Pageable(p => p.Input(true).PageSizes(true))
+	.Sortable()
+	.Filterable()
+	.Editable(e => e.Mode(GridEditMode.InLine))
+	.ToolBar(t => t.Create())
+	  )
+
+
+

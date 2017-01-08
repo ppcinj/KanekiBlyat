@@ -1,0 +1,15 @@
+﻿@model ParelloZmorge.Models.ImageUploadModel
+
+@Html.HiddenFor(m => m.Id)	
+
+<script>
+	function onImageUpload(e) {
+		e.data = { Id: $("#ImageUploadModel_Id").val() };
+	}
+</script>
+
+@Html.Kendo().Upload().Name("files").Async(a =>
+{
+	a.AutoUpload(true)
+	.Save("FileUpload", "file");
+}).Events(e => e.Upload("onImageUpload"))

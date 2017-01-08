@@ -1,0 +1,28 @@
+﻿@{
+	ViewBag.Title = "Benutzerverwaltung";
+}
+@using ParelloZmorge.Models
+<h2>@ViewBag.Title</h2>
+<h3>@ViewBag.Message</h3>
+@(Html.Kendo().Grid<ApplicationUserModel>().Name("users").Columns(c =>
+{
+	c.Bound(u => u.Prename).Title("Vorname");
+	c.Bound(u => u.Surname).Title("Nachname");
+	c.Bound(u => u.Email);
+	c.Bound(u => u.WorkPlaceHint).Title("Arbeitsort");
+	c.Bound(p => p.Role).ClientTemplate("#: Role.Name #").Title("Berechtigungsgruppe").Filterable(false);
+	c.Command(command => { command.Edit(); });
+})
+		.DataSource(d => d.Ajax()
+			.Read(r => r.Action("GetUsers", "User"))
+			.Update(u => u.Action("Update", "User"))
+			.Model(m =>
+			{
+				m.Id(u => u.Id);
+			})
+		.ServerOperation(false))
+		.Pageable(p => p.Input(true).PageSizes(true))
+		.Sortable()
+		.Filterable()
+		.Editable(e => e.Mode(GridEditMode.InLine))
+)

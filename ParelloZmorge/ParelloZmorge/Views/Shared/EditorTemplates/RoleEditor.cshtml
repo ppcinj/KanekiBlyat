@@ -1,0 +1,6 @@
+﻿@model ParelloZmorge.Models.IdentityRoleModel
+
+@(Html.Kendo().DropDownList().Name("Role")
+	.DataTextField("Name")
+	.DataValueField("Id")
+	.DataSource(d => d.Read(r => r.Action("Index", "Role"))))
