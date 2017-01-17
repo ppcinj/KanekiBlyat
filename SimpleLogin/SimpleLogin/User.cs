@@ -10,5 +10,7 @@ namespace SimpleLogin
     {
         public string Username { get; set; }
         public string Password { get; set; }
+        public float Money { get; set; }
+
     }
 }
