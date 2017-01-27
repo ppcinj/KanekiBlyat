@@ -1,19 +1,22 @@
 ﻿using System;
 using System.Windows.Forms;
+using TestEmployee.IoC;
 
-namespace WindowsFormsApplication1
+namespace TestEmployee
 {
     static class Program
     {
         /// <summary>
-        /// Главная точка входа для приложения.
+        /// The main entry point for the application.
         /// </summary>
         [STAThread]
         static void Main()
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new Form1());
+            EmployeeRamFacade.Configure();
+            EmployeeFileFacade.Configure();
+            Application.Run(new frmMain(new EmployeeFileFacade(), new EmployeeInputValidator()));
         }
     }
 }

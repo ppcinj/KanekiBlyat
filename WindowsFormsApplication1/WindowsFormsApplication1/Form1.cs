@@ -1,17 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace WindowsFormsApplication1
 {
+   
     public partial class Form1 : Form
     {
+        public List<Regdan> Spisok = new List<Regdan>();
         public void CheckAndSave()
         {
             if (txName1.Text=="" || txFam1.Text=="" || txMoney1.Text=="" || txDay1.Text == "")
@@ -26,8 +23,8 @@ namespace WindowsFormsApplication1
             {
                 int d;
                 double mon;
-                string nam = txName1.Text;
-                string fam = txFam1.Text;
+                var nam = txName1.Text;
+                var fam = txFam1.Text;
                 double.TryParse(txMoney1.Text, out mon);
                 int.TryParse(txDay1.Text, out d);
                 if (mon == 0 || d == 0)
@@ -39,18 +36,19 @@ namespace WindowsFormsApplication1
                     MessageBox.Show("Некоректный ввод данных");
                     return;
                 }
-                Regdan Register = new Regdan(nam, fam, mon, d);
+                var register = new Regdan(nam, fam, mon, d);
                 txName1.Clear();
                 txFam1.Clear();
                 txMoney1.Clear();
                 txDay1.Clear();
-                spisok.Add(Register);
+                Spisok.Add(register);
                 //    List<string> NName = spisok.;
-                spisok.ForEach(x => listBox1.Items.Add(x));
+                listBox1.Items.Clear();
+                Spisok.ForEach(x => listBox1.Items.Add(x));
                 
             }
         }
-        List<Regdan> spisok = new List<Regdan>();
+        
         public Form1()
         {
             InitializeComponent();
@@ -64,20 +62,53 @@ namespace WindowsFormsApplication1
 
         private void button2_Click(object sender, EventArgs e)
         {
+            var regId = (Regdan)listBox1.SelectedItem;
+            var newform = new FormEdit((Regdan)listBox1.SelectedItem);
+            newform.FormClosed += delegate
+            {
+                  Spisok.RemoveAll(x => x.Id == regId.Id);
+                  Spisok.Add(newform.Save);
+              };
+            newform.ShowDialog();
+            listBox1.Items.Clear();
+            Spisok.ForEach(x => listBox1.Items.Add(x));
+
+
 
         }
 
         private void listBox1_SelectedValueChanged(object sender, EventArgs e)
         {
-            if (listBox1.SelectedIndex != -1)
-            {
-                var dan = (Regdan)listBox1.SelectedItem;
-                label1.Text =$"{dan.Name}  {dan.Famil}";
-            }
+            if (listBox1.SelectedIndex == -1) return;
+            var dan = (Regdan)listBox1.SelectedItem;
+            lbName.Text =$"{dan.Name}";
+            lbFam.Text =$" {dan.Famil}";
+            lbMoney.Text =$"{dan.Money}";
+            lbDays.Text = $"{dan.Day}";
+        }
+
+        private void txSearch_TextChanged(object sender, EventArgs e)
+        {
+            listBox1.Items.Clear();
+            Spisok.Where(x => x.ToString().ToLower().Contains(txSearch.Text.ToLower())).OrderBy(x => x.ToString()).
+                ToList().ForEach(x => listBox1.Items.Add(x));
+
+            
+        }
+
+        private void groupBox1_Enter(object sender, EventArgs e)
+        {
+
+        }
+
+        private void listBox1_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
         }
     }
     public class Regdan
     {
+        public Guid Id { get; set; }
         public string Name { get; set; }
         public string Famil { get; set; }
         public double Money { get; set; }
@@ -88,7 +119,8 @@ namespace WindowsFormsApplication1
             Famil = fam;
             Money = mon;
             Day = d;
-
+            Id = Guid.NewGuid();
+                
         }
         public override string ToString()
         {
