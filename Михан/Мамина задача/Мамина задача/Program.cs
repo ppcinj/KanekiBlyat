@@ -47,7 +47,6 @@ namespace Мамина_задача
                     s2 = a + c;
                     s3 = c - d;
                     s4 = b + d;
-                    Console.WriteLine(s1);
                     for (int i2 = 0; i2 < k; i2++)
                     {
 
