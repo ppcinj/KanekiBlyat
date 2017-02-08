@@ -16,7 +16,7 @@ namespace TestEmployee
             Application.SetCompatibleTextRenderingDefault(false);
             EmployeeRamFacade.Configure();
             EmployeeFileFacade.Configure();
-            Application.Run(new frmMain(new EmployeeFileFacade(), new EmployeeInputValidator()));
+            Application.Run(new frmMain(new EmployeeDbFacade(), new EmployeeInputValidator()));
         }
     }
 }
