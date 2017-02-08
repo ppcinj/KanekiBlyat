@@ -8,13 +8,21 @@ namespace TestEmployee.Autofac
 {
     public static class AutofacConfiguration
     {
-        public static ILifetimeScope GetLifetimeScope()
+        private static ILifetimeScope _scope;
+
+        public static ILifetimeScope Scope => _scope ?? (_scope = GetLifetimeScope());
+
+        private static ILifetimeScope GetLifetimeScope()
         {
             var containerBuilder = new ContainerBuilder();
             containerBuilder.RegisterType<EmployeeDbFacade>().As<IEmployeeFacade>();
-            containerBuilder.RegisterType<EmployeeInputValidator>().As<IEmployeeValidator>();
-            containerBuilder.RegisterType<frmMain>();
+            containerBuilder.RegisterType<EmployeeInputValidator>().As<IEmployeeValidator>().InstancePerLifetimeScope();
             containerBuilder.RegisterType<EmployeeRepository>().As<IEmployeeRepository>();
+
+            containerBuilder.RegisterAssemblyTypes(typeof(Employee).Assembly)
+                .Where(t => t.Name.StartsWith("frm"));
+
+            containerBuilder.RegisterType<frmEdit>().WithParameter(new TypedParameter(typeof(Employee), "employee"));
 
             containerBuilder.RegisterInstance(NHConfig.Session).As<ISession>();
 

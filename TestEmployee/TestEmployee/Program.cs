@@ -19,7 +19,7 @@ namespace TestEmployee
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
-            using (var scope = AutofacConfiguration.GetLifetimeScope())
+            using (var scope = AutofacConfiguration.Scope)
             {
                 Application.Run(scope.Resolve<frmMain>());
             }

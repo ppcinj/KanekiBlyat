@@ -1,7 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Windows.Forms;
+using Autofac;
+using Autofac.Core;
+using TestEmployee.Autofac;
 using TestEmployee.IoC;
 
 namespace TestEmployee
@@ -78,7 +82,11 @@ namespace TestEmployee
 
         private Employee EditEmployee(Employee employee)
         {
-            var addForm = new frmEdit(_employeeValidator, employee);
+            var addForm = AutofacConfiguration.Scope.Resolve<frmEdit>(new List<Parameter>()
+            {
+                new NamedParameter("employee", employee)
+            });
+
             addForm.ShowDialog();
             return addForm.Action == EditCloseAction.Save ? addForm.MyEmployee : null;
         }
