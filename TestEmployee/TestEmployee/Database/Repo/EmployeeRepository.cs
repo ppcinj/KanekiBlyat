@@ -7,16 +7,24 @@ namespace TestEmployee.Database.Repo
 {
     public class EmployeeRepository : IEmployeeRepository
     {
+        private IList<EmployeeBE> _cachedList;
+        private bool _isDirty = true;
         private readonly ISession _session;
 
         public EmployeeRepository(ISession session)
         {
             _session = session;
+            _cachedList = new List<EmployeeBE>();
         }
 
         public IList<EmployeeBE> GetAllEmployees()
         {
-            return _session.QueryOver<EmployeeBE>().List();
+            if (_isDirty)
+            {
+                _cachedList = _session.QueryOver<EmployeeBE>().List();
+                _isDirty = false;
+            }
+            return _cachedList;
         }
 
         public EmployeeBE GetEmployeeById(Guid id)
@@ -27,12 +35,14 @@ namespace TestEmployee.Database.Repo
         public void Remove(EmployeeBE e)
         {
             _session.Delete(e);
+            _isDirty = true;
             _session.Flush();
         }
 
         public void SaveOrUpdate(EmployeeBE e)
         {
             _session.SaveOrUpdate(e);
+            _isDirty = true;
             _session.Flush();
         }
     }
