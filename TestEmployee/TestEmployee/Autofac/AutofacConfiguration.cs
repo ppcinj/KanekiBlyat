@@ -2,7 +2,8 @@
 using NHibernate;
 using TestEmployee.Database;
 using TestEmployee.Database.Repo;
-using TestEmployee.IoC;
+using TestEmployee.ServiceLayer.Facade;
+using TestEmployee.ServiceLayer.Validation;
 
 namespace TestEmployee.Autofac
 {

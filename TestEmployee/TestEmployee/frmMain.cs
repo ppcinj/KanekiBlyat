@@ -6,7 +6,8 @@ using System.Windows.Forms;
 using Autofac;
 using Autofac.Core;
 using TestEmployee.Autofac;
-using TestEmployee.IoC;
+using TestEmployee.ServiceLayer.Facade;
+using TestEmployee.ServiceLayer.Validation;
 
 namespace TestEmployee
 {

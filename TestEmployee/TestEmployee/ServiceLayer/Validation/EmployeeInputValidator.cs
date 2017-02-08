@@ -1,4 +1,4 @@
-﻿namespace TestEmployee.IoC
+﻿namespace TestEmployee.ServiceLayer.Validation
 {
     public interface IEmployeeValidator
     {

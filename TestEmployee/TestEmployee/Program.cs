@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Windows.Forms;
 using Autofac;
-using NHibernate;
 using TestEmployee.Autofac;
-using TestEmployee.Database;
-using TestEmployee.IoC;
 
 namespace TestEmployee
 {

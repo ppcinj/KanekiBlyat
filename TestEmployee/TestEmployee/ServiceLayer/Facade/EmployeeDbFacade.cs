@@ -3,7 +3,7 @@ using System.Linq;
 using TestEmployee.Database.Map;
 using TestEmployee.Database.Repo;
 
-namespace TestEmployee.IoC
+namespace TestEmployee.ServiceLayer.Facade
 {
     public class EmployeeDbFacade : IEmployeeFacade
     {
