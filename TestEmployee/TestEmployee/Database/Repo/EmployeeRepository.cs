@@ -9,9 +9,9 @@ namespace TestEmployee.Database.Repo
     {
         private readonly ISession _session;
 
-        public EmployeeRepository()
+        public EmployeeRepository(ISession session)
         {
-            _session = NHConfig.Session;
+            _session = session;
         }
 
         public IList<EmployeeBE> GetAllEmployees()

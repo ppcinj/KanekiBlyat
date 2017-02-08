@@ -9,9 +9,9 @@ namespace TestEmployee.IoC
     {
         private readonly IEmployeeRepository _employeeRepository;
 
-        public EmployeeDbFacade()
+        public EmployeeDbFacade(IEmployeeRepository employeeRepository)
         {
-            _employeeRepository = new EmployeeRepository();
+            _employeeRepository = employeeRepository;
         }
 
         public List<Employee> GetAllEmployees()
