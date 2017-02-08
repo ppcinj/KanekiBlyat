@@ -27,6 +27,7 @@ namespace TestEmployee.Database.Repo
         public void Remove(EmployeeBE e)
         {
             _session.Delete(e);
+            _session.Flush();
         }
 
         public void SaveOrUpdate(EmployeeBE e)
