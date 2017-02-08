@@ -66,6 +66,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Autofac\AutofacConfiguration.cs" />
     <Compile Include="Database\Map\EmployeeBE.cs" />
     <Compile Include="Database\Map\EmployeeMap.cs" />
     <Compile Include="Database\NHConfig.cs" />

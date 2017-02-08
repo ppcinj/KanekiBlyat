@@ -15,7 +15,7 @@ namespace TestEmployee.IoC
     {
         private static List<Employee> Employees { get; set; }
 
-        public static void Configure()
+        static EmployeeRamFacade()
         {
             Employees = new List<Employee>();
         }

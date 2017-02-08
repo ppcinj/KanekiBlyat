@@ -9,10 +9,15 @@ namespace TestEmployee.IoC
     {
         private const string FileName = "employee.db";
 
-        public static void Configure()
+        static EmployeeFileFacade()
         {
             if (!File.Exists(FileName))
-                File.Create(FileName).Close();
+                Create();
+        }
+
+        private static void Create()
+        {
+            File.Create(FileName).Close();
         }
 
         private List<Employee> GetFileContent()
@@ -26,7 +31,7 @@ namespace TestEmployee.IoC
             catch (JsonSerializationException)
             {
                 File.Delete(FileName);
-                Configure();
+                Create();
                 return GetFileContent();
             }
         }
